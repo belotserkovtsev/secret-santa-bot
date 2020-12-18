@@ -18,10 +18,11 @@ Bot is able to:
 ## 💻 Installation
 Download and install the latest version of [Node.js](https://nodejs.org/en/)
 
-Clone this repo and install dependencies:
+Clone this repo, create one dir and install dependencies:
 ```bash
 git clone https://github.com/belotserkovtsev/secret-santa-bot.git
 cd secret-santa-bot
+mkdir roomdata
 npm install
 ```
 
