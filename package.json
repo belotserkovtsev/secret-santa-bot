@@ -4,7 +4,7 @@
   "description": "Secret santa in telegram",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "app": "TOKEN=yourToken node app.js"
   },
   "author": "belotserkovtsev",
   "license": "ISC",
