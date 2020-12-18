@@ -2,9 +2,11 @@ const Telegraf = require('telegraf');
 const Stage = require('telegraf/stage');
 const session = require('telegraf/session');
 const BaseScene = require('telegraf/scenes/base');
+const AsyncLock = require('async-lock');
 const fs = require('fs');
 const Room = require('./model/room');
 global.__basedir = __dirname;
+global.__lock = new AsyncLock();
 
 const bot = new Telegraf(process.env.TOKEN);
 
@@ -30,17 +32,43 @@ bot.telegram.getMe().then((botInfo) => {
     bot.options.username = botInfo.username
 });
 
+enterNameJoinRoom.hears("Cancel", ctx => {
+    ctx.reply("Canceled", Telegraf.Markup.keyboard([['Join', 'Create']]).
+    oneTime().resize().extra())
+        .catch(e => {
+            console.log(e.message)
+        })
+    ctx.scene.leave()
+})
+
 enterNameJoinRoom.on("message", ctx => {
     Room.join(ctx.chat.id, ctx.session.roomCodeToJoin, ctx.message.text)
-    ctx.reply("Joined successfully. Wait for your message", Telegraf.Markup.keyboard([['Join', 'Create']]).
-    oneTime().resize().extra())
-    ctx.session.roomCodeToJoin = null //fix that shit
-    ctx.scene.leave()
+        .then(res => {
+            if(res) {
+                ctx.session.roomCodeToJoin = null //fix that shit
+                ctx.reply("Joined successfully. Turn notifications on - the bot will send you " +
+                    "your partner as soon as secret santa begins", Telegraf.Markup.keyboard([['Join', 'Create']]).
+                oneTime().resize().extra())
+                ctx.scene.leave()
+            } else {
+                ctx.session.roomCodeToJoin = null
+                ctx.reply("There is no such room", Telegraf.Markup.keyboard([['Join', 'Create']]).
+                oneTime().resize().extra())
+                ctx.scene.leave()
+            }
+        })
+        .catch(e => {
+            console.log(e.message)
+        })
+
 })
 
 createRoom.hears("Cancel", ctx => {
     ctx.reply("Canceled", Telegraf.Markup.keyboard([['Join', 'Create']]).
     oneTime().resize().extra())
+        .catch(e => {
+            console.log(e.message)
+        })
     ctx.scene.leave()
 })
 
@@ -54,20 +82,28 @@ enterRoom.hears("Cancel", ctx => {
     ctx.reply("Canceled",
         Telegraf.Markup.keyboard([['Join', 'Create']]).
         oneTime().resize().extra())
+        .catch(e => {
+            console.log(e.message)
+        })
 })
 
 enterRoom.on("message", ctx => {
     ctx.session.roomCodeToJoin = ctx.message.text
-    ctx.scene.enter("enterNameJoinRoom")
-        .then(_ => {
-        ctx.reply("Enter name")
+    ctx.reply("Enter name").then(_ => {
+        ctx.scene.enter("enterNameJoinRoom")
     })
+        .catch(e => {
+            console.log(e.message)
+        })
 })
 
 room.enter(ctx => {
     ctx.replyWithHTML('🤖 <b>You joined your room. Room id is ' + ctx.from.id + '</b>',
         Telegraf.Markup.keyboard([['Refresh', 'Start', 'Cancel']]).
         oneTime().resize().extra())
+        .catch(e => {
+            console.log(e.message)
+        })
 })
 
 room.hears("Cancel", ctx => {
@@ -75,11 +111,20 @@ room.hears("Cancel", ctx => {
     ctx.reply("Room was deleted",
         Telegraf.Markup.keyboard([['Join', 'Create']]).
         oneTime().resize().extra())
-    ctx.scene.leave()
+        .then(_ => {
+            ctx.scene.leave()
+        })
+        .catch(e => {
+            console.log(e.message)
+        })
 })
 
 room.hears("Start", ctx => {
     ctx.session.room.start(bot)
+        .catch(e => {
+            ctx.reply("Something went wrong. Try again later")
+            console.log(e.message)
+        })
 })
 
 bot.hears("Create", ctx => {
@@ -101,6 +146,9 @@ bot.hears("Join", ctx => {
         .then(_ => {
         ctx.scene.enter("enterRoom")
     })
+        .catch(e => {
+            console.log(e.message)
+        })
 })
 
 bot.start(async ctx => {
@@ -112,3 +160,6 @@ bot.start(async ctx => {
 });
 
 bot.launch()
+.catch(e => {
+    console.log(e.message)
+})

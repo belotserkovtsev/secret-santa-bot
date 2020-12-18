@@ -9,6 +9,7 @@
   "author": "belotserkovtsev",
   "license": "ISC",
   "dependencies": {
+    "async-lock": "^1.2.6",
     "telegraf": "^3.38.0"
   }
 }
