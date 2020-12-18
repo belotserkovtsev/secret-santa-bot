@@ -9,6 +9,11 @@ Bot is able to:
 - Create unique room for people attending secret santa
 - Randomly distribute pairs
 
+## ⛔️ Possible bugs and failures
+
+- This bot was written in a day, hence there is no error handling at all. Be gentle :)
+- I am planning on fixing critical errors, so please submit issues
+
 
 ## 💻 Installation
 Download and install the latest version of [Node.js](https://nodejs.org/en/)
@@ -38,3 +43,6 @@ Launch your application with <b>pm2</b>, <b>node</b> or <b>npm</b>
 ```bash
 node app.js
 ```
+
+## 📱 Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
