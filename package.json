@@ -1,0 +1,14 @@
+{
+  "name": "secretsanta-bot",
+  "version": "1.0.0",
+  "description": "Secret santa in telegram",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "belotserkovtsev",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "^3.38.0"
+  }
+}
